@@ -11,7 +11,7 @@ namespace Poly {
 		virtual void OnDetach() {}
 
 		virtual void OnUpdate(float ts) {}
-		virtual void OnUIRender() {}
+		virtual void OnUIRender(GLFWwindow *window) {}
 	};
 
 }

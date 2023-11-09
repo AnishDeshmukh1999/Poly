@@ -144,7 +144,7 @@ namespace Poly {
 				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 
 				for (auto& layer : m_LayerStack)
-					layer->OnUIRender();
+					layer->OnUIRender(m_WindowHandle);
 
 				ImGui::End();
 			}

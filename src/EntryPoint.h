@@ -3,13 +3,46 @@
 
 extern Poly::Application* Poly::CreateApplication(int argc, char** argv);
 
+GLuint textureID; // This is the ID of the OpenGL texture
 
-class ExampleLayer : public Poly::Layer
+// Load an image and create an OpenGL texture
+void LoadTexture() {
+	// Generate a simple checkerboard pattern (32x32 pixels)
+	const int width = 32;
+	const int height = 32;
+	unsigned char data[width * height * 4];
+	for (int i = 0; i < width * height; ++i) {
+		int x = i % width;
+		int y = i / width;
+		data[i * 4] = ((x / 8 + y / 8) & 1) ? 255 : 0;
+		data[i * 4 + 1] = ((x / 8 + y / 8) & 1) ? 255 : 0;
+		data[i * 4 + 2] = ((x / 8 + y / 8) & 1) ? 255 : 0;
+		data[i * 4 + 3] = 255;
+	}
+
+	// Generate and bind an OpenGL texture
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
+class ViewportLayer : public Poly::Layer
 {
 public:
-	virtual void OnUIRender() override
+	virtual void OnUIRender(GLFWwindow *window) override
 	{
-
+		ImGuiIO& io = ImGui::GetIO();
+		
+		ImGuiWindowFlags window_flags = 0;
+		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+		window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
+		ImGui::Begin("Background Window", nullptr, window_flags);
+		{
+			ImGui::ShowDemoWindow();
+		}
+		ImGui::End();
 	}
 };
 
@@ -18,7 +51,7 @@ Poly::Application* Poly::CreateApplication(int argc, char** argv) {
 	spec.Name = "Walnut Example";
 
 	Poly::Application* app = new Poly::Application(spec);
-	app->PushLayer<ExampleLayer>();
+	app->PushLayer<ViewportLayer>();
 	app->SetMenubarCallback([app]()
 		{
 			if (ImGui::BeginMenu("File"))
